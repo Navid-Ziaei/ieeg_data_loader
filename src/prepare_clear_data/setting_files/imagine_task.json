@@ -1,0 +1,109 @@
+{
+    "p01": [
+        [
+            "MG126/CLEARimagine/",
+            "CorrectedBIPOLFieldTripFormat_IMAGINE_MG126CLEAR.mat",
+            "MG126_MergedBanksCLEARimagine.mat"
+        ]
+    ],
+    "p02": [],
+    "p03": [],
+    "p04": [],
+    "p05": [
+        [
+            "MG132/CLEAR_S2/",
+            "CorrectedBIPOLFieldTripFormat_IMAGINE_MG132CLEAR.mat",
+            "MG132_MergedBanksCLEAR_S2.mat"
+        ]
+    ],
+    "p06": [
+        [
+            "MG133/CLEAR/",
+            "CorrectedBIPOLFieldTripFormat_IMAGINE_MG133CLEAR.mat",
+            "MG133_MergedBanksCLEAR.mat"
+        ]
+    ],
+    "p07": [
+        [
+            "MG134/CLEAR/",
+            "CorrectedBIPOLFieldTripFormat_IMAGINE_MG134CLEAR.mat",
+            "MG134_MergedBanksCLEAR.mat"
+        ],
+        [
+            "MG134/CLEAR_Imagine/",
+            "CorrectedBIPOLFieldTripFormat_IMAGINE_MG134CLEAR.mat",
+            "MG134_MergedBanksCLEAR_Imagine.mat"
+        ]
+    ],
+    "p08": [
+        [
+            "MG135/CLEAR_STOP/",
+            "CorrectedBIPOLFieldTripFormat_IMAGINE_MG135CLEAR.mat",
+            "MG135_MergedBanksCLEAR_STOP.mat"
+        ]
+    ],
+    "p09": [],
+    "p10": [
+        [
+            "BW55/CLEAR_Imagine/",
+            "CorrectedBIPOLFieldTripFormat_IMAGINE_BW55CLEAR.mat",
+            "BW55_MergedBanksCLEAR_bl2.mat"
+        ]
+    ],
+    "p11": [
+        [
+            "BW56/CLEAR/",
+            "CorrectedBIPOLFieldTripFormat_IMAGINE_BW56CLEAR.mat",
+            "BW56_MergedBanksCLEAR.mat"
+        ]
+    ],
+    "p12": [
+        [
+            "MG137/CLEAR/",
+            "CorrectedBIPOLFieldTripFormat_IMAGINE_MG137CLEAR.mat",
+            "MG137_MergedBanksCLEAR.mat"
+        ]
+    ],
+    "p13": [
+        [
+            "BW57/CLEAR/Imagine/",
+            "CorrectedBIPOLFieldTripFormat_IMAGE_BW57CLEAR.mat",
+            "BW57_MergedBanksCLEARImagine.mat"
+        ]
+    ],
+    "p14": [
+        [
+            "MG139/CLEAR/",
+            "CorrectedBIPOLFieldTripFormat_IMAGINE_MG139CLEAR.mat",
+            "MG139_MergedBanksCLEAR.mat"
+        ]
+    ],
+    "p15": [
+        [
+            "MG140/CLEAR/",
+            "CorrectedBIPOLFieldTripFormat_IMAGINE_MG140CLEAR.mat",
+            "MG140_MergedBanksCLEAR.mat"
+        ]
+    ],
+    "p16": [
+        [
+            "MG141/CLEAR/",
+            "CorrectedBIPOLFieldTripFormat_IMAGINE_MG141CLEAR.mat",
+            "MG141_MergedBanksCLEAR.mat"
+        ]
+    ],
+    "p17": [
+        [
+            "MG142/CLEAR/",
+            "CorrectedBIPOLFieldTripFormat_IMAGINE_MG142CLEAR.mat",
+            "MG142_MergedBanksCLEAR.mat"
+        ]
+    ],
+    "p18": [
+        [
+            "MG143/CLEAR_Imagine/",
+            "CorrectedBIPOLFieldTripFormat_IMAGINE_MG143CLEAR.mat",
+            "MG143_MergedBanksCLEAR.mat"
+        ]
+    ]
+}
