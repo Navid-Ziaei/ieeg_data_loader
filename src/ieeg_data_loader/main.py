@@ -1,7 +1,5 @@
-from src.data.data_loader import iEEGDataLoader
-from src.prepare_clear_data.prepare_data import CLEARDataLoader
-from src.visualization import *
-import ieeg_data_loader
+from src.ieeg_data_loader.data import iEEGDataLoader
+from src.ieeg_data_loader.visualization import *
 # data_loader = CLEARDataLoader()
 # data_loader.prepare_data()
 
@@ -38,6 +36,10 @@ for dataset_idx, dataset in enumerate(dataset_list):
     plt.cla()"""
 
     x, y, time = dataset.get_trial_data(patient, start_time=-500, end_time=2000)
+
+    find_and_plot_signal(continuous_signal, x, trial_idx=10,
+                         channel_number=15, continuous_indicator=continuous_indicator,
+                         channel_names=dataset.channel_name, task=task)
 
 
 

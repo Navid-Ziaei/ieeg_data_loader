@@ -524,6 +524,26 @@ def plot_all_continuous_signal(continuous_signal, continuous_indicator, channel_
         else:
             fig.savefig(f"{save_path}continuous_signals_group_{group_key}.png")
 
+
+def find_and_plot_signal(continuous_signal, x, trial_idx, channel_number, continuous_indicator, channel_names, task, **kwargs):
+    # Calculate correlations
+    x = x[trial_idx, channel_number, :]
+    correlations = [np.corrcoef(x, continuous_signal[channel_number, i:i + x.shape[-1]])[0, 1]
+                    for i in range(len(continuous_signal[channel_number]) - x.shape[-1] + 1)]
+
+    # Find the position with the highest correlation
+    max_corr_index = np.argmax(correlations)
+    highlight_segment = (max_corr_index, max_corr_index + x.shape[-1])
+
+    # Plot the continuous signal and highlight the found segment
+    ax = plot_continuous_signal(continuous_signal, continuous_indicator, channel_names, channel_number, task,
+                                reuse=True, **kwargs)
+    ax.axvspan(*highlight_segment, facecolor='blue', alpha=0.5, label='matched segment')
+
+    # Finalize and show the plot
+    ax.legend()
+    plt.show()
+
 def plot_synchronized_avg(x, y, time, time_annotation, channel_names, save_path=None):
     if len(y.shape) > 1:
         for key in y.keys().to_list():

@@ -1,4 +1,4 @@
-from .dataset import IEEGData
+from ..data.dataset import IEEGData
 from abc import ABC, abstractmethod
 from scipy import io
 import os
@@ -22,8 +22,12 @@ class AbstractDataLoader(ABC):
         data_list = []
         if isinstance(self.task, str):
             task = [self.task]
+        else:
+            task = self.task
         if isinstance(self.patient, str):
             patient = [self.patient]
+        else:
+            patient = self.patient
 
         file_dir = [[], [], []]
         for task_dir in os.listdir(self.prepared_dataset_path):
@@ -40,8 +44,7 @@ class AbstractDataLoader(ABC):
                     data_list.extend(self.read_data(patient_dir_path=patient_dir_path,
                                                     file_dir=file_dir))
         if len(data_list) == 0:
-            raise ValueError(f" No data found for patient {self.patient} and task {self.task} in "
-                             f"{self.paths.prepared_dataset_path}")
+            raise ValueError(f" No data found for patient {self.patient} and task {self.task}")
         return data_list
 
     def get_available_blocks(self):

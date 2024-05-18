@@ -2,15 +2,14 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from tqdm import tqdm
-from scipy.signal import butter, filtfilt, hilbert, decimate, firwin, freqz
+from scipy.signal import butter, filtfilt, hilbert, firwin
 import pickle
 from pathlib import Path
 import seaborn as sns
 import os
 
-from utils import non_overlapping_moving_average_repeated
-
-from src.visualization import plot_continuous_heatmap, plot_continuous_signal, plot_eeg_bands
+from ..utils import non_overlapping_moving_average_repeated
+from ..visualization import plot_continuous_heatmap, plot_continuous_signal, plot_eeg_bands
 
 
 class IEEGData:
@@ -306,7 +305,7 @@ class IEEGData:
         idx_end = np.argmin(abs(time - end_time))
 
         x = self.data[:, :, idx_start:idx_end]
-        time = time[idx_start:idx_end]
+
 
         print(f"===========================\n"
               f"Time from {time[idx_start]} to {time[idx_end]}\n"
@@ -336,6 +335,7 @@ class IEEGData:
                     x[trial_idx, :, :] = self.data[trial_idx, :, idx_start:idx_end - 1]
                 else:
                     x[trial_idx, :, :] = self.data[trial_idx, :, idx_start:idx_end]
+            time = time[idx_start:idx_end]
             self.trial_time_annotation['trial end'] = - self.trial_time_annotation['image onset']
             self.trial_time_annotation['image onset'] = self.trial_time_annotation['image onset'] * 0
             self.trial_time_annotation['fixation onset'] = self.trial_time_annotation['image onset'] * 0 - 500

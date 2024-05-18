@@ -2,13 +2,12 @@ import warnings
 from collections import OrderedDict
 
 import mne_bids
-import pandas as pd
-from utils import *
+from ..utils import *
 
-from src.data.dataset import IEEGData
+from ..data import IEEGData
 import mne
 import numpy as np
-from scipy.signal import butter, filtfilt, hilbert, decimate, firwin, freqz
+
 
 class AUDIOVISDataLoader:
     def __init__(self, paths, settings, **kwargs):
