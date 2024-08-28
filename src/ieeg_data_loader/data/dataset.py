@@ -281,6 +281,9 @@ class IEEGData:
                 trial_end = self.trial_info['Stim onset NEV'][1:].values - self.trial_info['Stim offset NEV'][
                                                                                :-1].values
                 trial_end = np.concatenate([trial_end, [0.8]], axis=0)
+            elif patient in ["p01", "p03", "p04", ]:
+                trial_end = self.trial_info['Image Onset NEV'].values - self.trial_info['Fixation Onset NEV'].values
+                fixation_onset = np.zeros(self.trial_info.shape[0])
             else:
                 trial_end = self.trial_info['Fixation Onset NEV'][1:].values - self.trial_info['Image Onset NEV'][
                                                                                :-1].values
