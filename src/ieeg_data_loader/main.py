@@ -3,12 +3,12 @@ from src.ieeg_data_loader.visualization import *
 # data_loader = CLEARDataLoader()
 # data_loader.prepare_data()
 
-patient = 'p01'
-task = 'flicker'
+patient = 'p05'
+task = 'm_sequence'
 path_result = ''
 data_loader = iEEGDataLoader(patient=patient,
                              target_class='color',
-                             prepared_dataset_path="D:\\Navid\\Dataset\\CLEAR\\interim\\",
+                             prepared_dataset_path="D:/Datasets/CLEAR/interim/",
                              task=task,
                              file_format='npy')
 dataset_list = data_loader.load_data()

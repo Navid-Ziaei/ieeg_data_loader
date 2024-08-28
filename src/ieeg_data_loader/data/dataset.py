@@ -33,8 +33,24 @@ class IEEGData:
         self.time = data_dict['time']
         self.channel_name = data_dict['channel_names']
         self.trial_info = data_dict['trial_info']
-        self.label = pd.DataFrame(data_dict['label'])
+        if len(data_dict['label'].shape) > 2 and data_dict['label'].shape[2] == 10:
+            label_matrix = data_dict['label'].reshape(100, 100)
+            columns = [f"target_{i}_{j}" for i in range(10) for j in range(10)]
+            self.label = pd.DataFrame(label_matrix, columns=columns)
+        else:
+            if isinstance(data_dict['label'], pd.DataFrame):
+                self.label = data_dict['label']
+            else:
+                self.label = pd.DataFrame(data_dict['label'])
         self.meta = meta
+        self._check_m_sequence_labels(data_dict)
+
+    def _check_m_sequence_labels(self, data_dict):
+        if 'target_0_0' in self.label.columns:
+            color_level = data_dict['trial_info']['ColorLev'].values
+            assigned_labels = self.label['target_0_0'].values
+            num_of_errors = np.sum(assigned_labels[:len(color_level)] != color_level)
+            print(f"Number pf trials {len(color_level)} \t Number of errors in m-sequence data: {num_of_errors}")
 
     def epoched_to_continuous(self, patient, task, debug=False, save_path=None):
         """
@@ -47,12 +63,22 @@ class IEEGData:
         Returns:
 
         """
-        y = self.label['ColorLev'].values
+        # select the labels
+        if task in ['flicker']:
+            y = self.label['ColorLev'].values
+        elif task in ['m_sequence']:
+            y = np.arange(self.label.shape[0]) % 2
+        else:
+            print("epoched_to_continuous is not defined for this dataset and task")
+
+        # Get the time in ms
         time = self.time * 1000
         n_trials, n_channels, _ = self.data.shape
 
+        # Get the trial info
         self.trial_info = self.trial_info.loc[:, ~self.trial_info.columns.duplicated()]
 
+        # Extract the fixation time, image onset and
         if self.trial_time_annotation is None:
             self.get_time_annotation(patient=patient, task=task)
         continuous_signal = self.data[0]
@@ -95,6 +121,7 @@ class IEEGData:
             plt.show()
         else:
             fig.savefig(save_path + f"continuous_signals_annotation.png")
+            plt.close(fig)
         final_indicator = np.ones_like(all_indicator[0]) * np.nan
         for t in tqdm(range(all_indicator.shape[-1])):
             if any(all_indicator[:, t] == 0):
@@ -246,7 +273,43 @@ class IEEGData:
                 "image onset": np.round(image_onset.values * 1000),
                 "trial end": np.round(trial_end.values * 1000)
             }
-        print(f"task {task} : \n {self.time_annotation}")
+        elif task == 'm_sequence':
+            # I have changed the p09 (replaced the Image Onset NEV and trial End)
+            if patient in ['p09']:
+                fixation_onset = self.trial_info['Stim onset NEV'].values - self.trial_info[
+                    'Stim offset NEV'].values
+                trial_end = self.trial_info['Stim onset NEV'][1:].values - self.trial_info['Stim offset NEV'][
+                                                                               :-1].values
+                trial_end = np.concatenate([trial_end, [0.8]], axis=0)
+            else:
+                trial_end = self.trial_info['Fixation Onset NEV'][1:].values - self.trial_info['Image Onset NEV'][
+                                                                               :-1].values
+                trial_end = np.concatenate([trial_end, [0.8]], axis=0)
+
+                fixation_onset = self.trial_info['Fixation Onset NEV'].values - self.trial_info['Image Onset NEV'].values
+            image_onset = np.zeros(self.trial_info.shape[0])
+
+            if any(trial_end < 0.7) or any(trial_end > 0.9):
+                print(
+                    f"trials with trial_end annotation problem {np.where((trial_end < 0.7) | (trial_end > 0.9))[0]}")
+                print(
+                    f"{trial_end[(trial_end < 0.7) | (trial_end > 0.9)]} is replaced with {0.8}")
+                trial_end[(trial_end < 0.7) | (trial_end > 0.9)] = 0.8
+
+            self.time_annotation = {
+                "fixation onset": np.round(np.mean(fixation_onset - image_onset) * 1000),
+                "image onset": np.round(0.0),
+                "trial end": np.round(np.mean(trial_end - image_onset) * 1000)
+            }
+
+            self.trial_time_annotation = {
+                "fixation onset": np.round(fixation_onset * 1000),
+                "image onset": np.round(image_onset * 1000),
+                "trial end": np.round(trial_end * 1000)
+            }
+        else:
+            raise ValueError(f"get_time_annotation is not define for task {task}")
+        print(f"task {task} :git add {self.time_annotation}")
 
     def _create_trial_indicator(self, task, label, trial_idx):
         time = self.time * 1000
@@ -280,6 +343,13 @@ class IEEGData:
 
             continuous_indicator[fixation_onset:image_onset] = 0
             continuous_indicator[image_onset:trial_end] = 2 * label[trial_idx] - 1
+        elif task == 'm_sequence':
+            image_onset = np.argmin(np.abs(time - self.trial_time_annotation['image onset'][trial_idx]))
+            fixation_onset = np.argmin(np.abs(time - self.trial_time_annotation['fixation onset'][trial_idx]))
+            trial_end = np.argmin(np.abs(time - self.trial_time_annotation['trial end'][trial_idx]))
+
+            continuous_indicator[fixation_onset:image_onset] = 0
+            continuous_indicator[image_onset:trial_end] = 2 * label[trial_idx] - 1
         else:
             raise ValueError("task not defined")
 
@@ -300,12 +370,11 @@ class IEEGData:
 
     def get_trial_data(self, patient, start_time=-500, end_time=2000):
         y = self.label
-        time = self.time*1000
+        time = self.time * 1000
         idx_start = np.argmin(abs(time - start_time))
         idx_end = np.argmin(abs(time - end_time))
 
         x = self.data[:, :, idx_start:idx_end]
-
 
         print(f"===========================\n"
               f"Time from {time[idx_start]} to {time[idx_end]}\n"

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="ieeg_data_loader",
-    version="0.1.1",
+    version="0.1.2",
     author="author",
     author_email="nziaei@wpi.edu",
     description="A package for loading iEEG dataset",

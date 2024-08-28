@@ -5,6 +5,7 @@ import os
 import numpy as np
 import pandas as pd
 
+
 class AbstractDataLoader(ABC):
     def __init__(self, patient, target_class, task, prepared_dataset_path, file_format):
         self.target_class = target_class
@@ -41,10 +42,11 @@ class AbstractDataLoader(ABC):
                         continue
                     file_dir[1] = patient_dir
                     patient_dir_path = os.path.join(task_dir_path, patient_dir)
-                    data_list.extend(self.read_data(patient_dir_path=patient_dir_path,
-                                                    file_dir=file_dir))
+                    new_subject_data = self.read_data(patient_dir_path=patient_dir_path,
+                                                      file_dir=file_dir)
+                    data_list.extend(new_subject_data)
         if len(data_list) == 0:
-            raise ValueError(f" No data found for patient {self.patient} and task {self.task}")
+            print(f" No data found for patient {self.patient} and task {self.task}")
         return data_list
 
     def get_available_blocks(self):
@@ -66,22 +68,31 @@ class iEEGDataLoader(AbstractDataLoader):
                 data = pd.read_pickle(file_path)
                 print(f"{i}: Data {file} \t Block Number: {data['trial_info']['BlockNumber'].unique()} \t"
                       f"Number of trials: {data['trial_info'].shape[0]}")
-                nan_trials = list(np.unique(np.where(np.isnan(data['data']))[0]))
-                if len(nan_trials) > 0:
-                    print(f"Warning: Trial {nan_trials} contains NaN. It is removed")
-                    for trial_idx in nan_trials:
-                        data['data'] = np.delete(data['data'], trial_idx, axis=0)
-                        data['trial_info'] = data['trial_info'].drop(trial_idx, axis=0)
-                        data['index'] = np.delete(data['index'], trial_idx, axis=0)
-                        data['label'] = data['label'].drop(trial_idx, axis=0)
+                if data['trial_info'].shape[0] > 100:
+                    pass
+                else:
+                    # Change the format to dataframe
+                    if len(data['label'].shape) > 2 and data['label'].shape[2] == 10:
+                        label_matrix = data['label'].reshape(100, 100)
+                        columns = [f"target_{i}_{j}" for i in range(10) for j in range(10)]
+                        data['label'] = pd.DataFrame(label_matrix, columns=columns)
+                    else:
+                        data['label'] = pd.DataFrame(data['label'])
 
-                data_ieeg = IEEGData()
-                data_ieeg.dict_to_iEEG_format(data_dict=data, meta=file_dir)
+                    # Remove the Nan Trials
+                    nan_trials = list(np.unique(np.where(np.isnan(data['data']))[0]))
+                    if len(nan_trials) > 0:
+                        print(f"Warning: Trial {nan_trials} contains NaN. It is removed")
+                        data['data'] = np.delete(data['data'], nan_trials, axis=0)
+                        data['trial_info'] = data['trial_info'].drop(nan_trials, axis=0)
+                        data['index'] = np.delete(data['index'], nan_trials, axis=0)
+                        data['label'] = data['label'].drop(nan_trials, axis=0)
+                    data_ieeg = IEEGData()
+                    data_ieeg.dict_to_iEEG_format(data_dict=data.copy(), meta=file_dir.copy())
 
-                i = i + 1
-                data_ieeg_list.append(data_ieeg)
+                    i = i + 1
+                    data_ieeg_list.append(data_ieeg)
         return data_ieeg_list
-
 
 
 class OCEDEEGDataLoader(AbstractDataLoader):

@@ -22,7 +22,6 @@ from collections import defaultdict
 
 def load_saved_data(w, save_path, patient_folder, task, folder_name, limit_end_time, feature_type,
                     label_name='ColorLev'):
-
     if label_name not in ['ColorLev', 'ShapeChoice']:
         raise ValueError("Not in the feature label_name choose from 'ColorLev', 'ShapeChoice'")
 
@@ -40,7 +39,8 @@ def load_saved_data(w, save_path, patient_folder, task, folder_name, limit_end_t
         cov_list = np.load(path_data + f'cov_list{fname}.npy', allow_pickle=True)
         channel_names = np.load(path_data + f'channel_names.npy')
 
-        return time, significant_points_cov, cov_diffs, significant_points_mean, mean_diffs, cov_list.take(0), channel_names
+        return time, significant_points_cov, cov_diffs, significant_points_mean, mean_diffs, cov_list.take(
+            0), channel_names
     except:
         print(f"{path_data} doesn't contain anything")
 
@@ -187,7 +187,7 @@ def plot_significant_points_rate(time, significant_points_cov_stacked, significa
     x_cov = np.sum(significant_points_cov_stacked, axis=0)
     x_mean = np.sum(significant_points_mean_stacked, axis=0)
 
-    x_cov = x_cov/np.sum(x_cov)
+    x_cov = x_cov / np.sum(x_cov)
     x_mean = x_mean / np.sum(x_mean)
 
     # w = 20
@@ -410,11 +410,30 @@ def moving_average(data, M):
     return smoothed_data
 
 
-
-
-
 def plot_continuous_signal(continuous_signal, continuous_indicator, channel_names, channel_number, task,
-                           save_path=None, moving_avg_win=0, file_name='continuous_signals', ax=None, reuse=False):
+                           save_path=None, moving_avg_win=0, file_name='continuous_signals', ax=None, reuse=False,
+                           title_fontsize=22, label_fontsize=16, legend_fontsize=14, tick_fontsize=12):
+    """
+
+    Args:
+        continuous_signal:
+        continuous_indicator:
+        channel_names:
+        channel_number:
+        task:
+        save_path:
+        moving_avg_win:
+        file_name:
+        ax:
+        reuse:
+        title_fontsize: Font size for the title.
+        label_fontsize: Font size for the labels.
+        legend_fontsize: Font size for the legend.
+        tick_fontsize: Font size for the tick labels.
+
+    Returns:
+
+    """
     if moving_avg_win > 0:
         signal = moving_average(continuous_signal[channel_number, :], moving_avg_win)
     else:
@@ -483,13 +502,17 @@ def plot_continuous_signal(continuous_signal, continuous_indicator, channel_name
     if reuse is True:
         return ax
     else:
-        ax.set_title(channel_names[channel_number])
-        ax.legend()
+        ax.set_title(channel_names[channel_number], fontsize=title_fontsize)
+        ax.legend(fontsize=legend_fontsize)
+        ax.tick_params(axis='both', which='major', labelsize=tick_fontsize)
         plt.tight_layout()
         if save_path is None:
             plt.show()
         else:
             fig.savefig(save_path + f"{file_name}_{channel_names[channel_number]}.png")
+            plt.close(fig)
+
+
 
 def plot_all_continuous_signal(continuous_signal, continuous_indicator, channel_names, task, save_path=None):
     """fig, axs = plt.subplots(len(channel_names), 1, figsize=(60, 5 * len(channel_names)))
@@ -499,8 +522,6 @@ def plot_all_continuous_signal(continuous_signal, continuous_indicator, channel_
 
     plt.tight_layout()
     fig.savefig(save_path + f"continuous_signals_all.svg")"""
-
-
 
     # Group channels based on the first four letters of their names
     grouped_channels = defaultdict(list)
@@ -525,7 +546,8 @@ def plot_all_continuous_signal(continuous_signal, continuous_indicator, channel_
             fig.savefig(f"{save_path}continuous_signals_group_{group_key}.png")
 
 
-def find_and_plot_signal(continuous_signal, x, trial_idx, channel_number, continuous_indicator, channel_names, task, **kwargs):
+def find_and_plot_signal(continuous_signal, x, trial_idx, channel_number, continuous_indicator, channel_names, task,
+                         **kwargs):
     # Calculate correlations
     x = x[trial_idx, channel_number, :]
     correlations = [np.corrcoef(x, continuous_signal[channel_number, i:i + x.shape[-1]])[0, 1]
@@ -543,6 +565,7 @@ def find_and_plot_signal(continuous_signal, x, trial_idx, channel_number, contin
     # Finalize and show the plot
     ax.legend()
     plt.show()
+
 
 def plot_synchronized_avg(x, y, time, time_annotation, channel_names, save_path=None):
     if len(y.shape) > 1:
@@ -1010,7 +1033,8 @@ def plot_eigenvector_heatmap_2class(eigenvectors1, eigenvectors2, component_idx,
     # plot_eigenvectors_heatmaps_interactive(eigenvector2, time, channel_names, title='Heatmap of Eigenvector White')
 
 
-def plot_covmat_heatmap_2class(pca_results1, pca_results2, time, time_idx, channel_names, save_path=None, key='', step=2, cov1=None, cov2=None):
+def plot_covmat_heatmap_2class(pca_results1, pca_results2, time, time_idx, channel_names, save_path=None, key='',
+                               step=2, cov1=None, cov2=None):
     fig, ax = plt.subplots(1, 2, figsize=(33, 15))
     if cov1 is None:
         cov1 = np.transpose(pca_results1[time_idx].get_covariance())
